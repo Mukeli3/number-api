@@ -32,6 +32,18 @@ def digit_sum(n):
 
 def fetch_fun_fact(n):
     "fetch fun fact from numbers API"
+    custom_fact = []
+    if is_armstrong(n):
+        custom_fact.append(f"{n} is an Armstrong number because {' + '.join([f'{digit}^{len(str(n))}' for digit in str(n)])} = {n}")
+    
+    if is_perfect(n):
+        custom_fact.append(f"{n} is a perfect number because its divisors sum to {n}")
+
+    if is_prime(n):
+        custom_fact.append(f"{n} is a prime number")
+
+    if custom_fact:
+        return ' '.join(custom_fact)
     try:
         response = requests.get(f"http://numbersapi.com/{n}")
         if response.status_code == 200:
