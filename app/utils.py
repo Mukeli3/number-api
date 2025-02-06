@@ -23,6 +23,9 @@ def is_armstrong(n):
     # str - convert number to string for iteration thru the digits
     digits = [int(d) for d in str(n)]
     power = len(digits)
+    if power == 1:
+        return False
+
     return sum(d ** power for d in digits) == n
 
 def digit_sum(n):
@@ -30,31 +33,41 @@ def digit_sum(n):
     # str - convert the number to str for iteration over each digit
     return sum(int(digit) for digit in str(abs(n)))
 
+UNINTERESTING_RESPONSES = [
+    "is a number for which we're missing a fact",
+    "is an uninteresting number",
+    "is an unremarkable number"
+]
+
 def fetch_fun_fact(n):
-    "fetch fun fact from numbers API"
-    custom_fact = []
-    if is_armstrong(n):
-        custom_fact.append(f"{n} is an Armstrong number because {' + '.join([f'{digit}^{len(str(n))}' for digit in str(n)])} = {n}")
-    
-    if is_perfect(n):
-        custom_fact.append(f"{n} is a perfect number because its divisors sum to {n}")
-
-    if is_prime(n):
-        custom_fact.append(f"{n} is a prime number")
-
-    if custom_fact:
-        return ' '.join(custom_fact)
+    """Fetch fun fact from Numbers API or provide a custom fact if unavailable"""
     try:
         response = requests.get(f"http://numbersapi.com/{n}")
         if response.status_code == 200:
-            return response.text
+            fact = response.text.strip()
 
+            # fallback to custom facts, Numbers API returns an "uninteresting" fact
+            if not any(phrase in fact for phrase in UNINTERESTING_RESPONSES):
+                return fact
     except requests.RequestException:
-        pass
-    return f"Couldn't fetch a fun fact for {n}!"
+        pass  # proceed to custom facts, error occurs while fetching
+
+    # custom facts if Numbers API fails or gives an uninteresting response
+    custom_facts = []
+    
+    if is_armstrong(n):
+        custom_facts.append(f"{n} is an Armstrong number because {' + '.join([f'{digit}^{len(str(n))}' for digit in str(n)])} = {n}")
+    
+    if is_perfect(n):
+        custom_facts.append(f"{n} is a perfect number because its divisors sum to {n}")
+
+    if is_prime(n):
+        custom_facts.append(f"{n} is a prime number")
+
+    return ' '.join(custom_facts) if custom_facts else f"No fun fact available for {n}."
 
 def classify_number(n):
-    "classify the number and return it's properties"
+    """classify number and return its properties"""
     props = []
     if is_prime(n):
         props.append("prime")
@@ -65,10 +78,10 @@ def classify_number(n):
     props.append("even" if n % 2 == 0 else "odd")
 
     return {
-            "number": n,
-            "is_prime": is_prime(n),
-            "is_perfect": is_perfect(n),
-            "properties": props,
-            "digit_sum": digit_sum(n),
-            "fun_fact": fetch_fun_fact(n),
-            }
+        "number": n,
+        "is_prime": is_prime(n),
+        "is_perfect": is_perfect(n),
+        "properties": props,
+        "digit_sum": digit_sum(n),
+        "fun_fact": fetch_fun_fact(n),
+    }
