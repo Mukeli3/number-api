@@ -36,6 +36,7 @@ def digit_sum(n):
 UNINTERESTING_RESPONSES = [
     "is a number for which we're missing a fact",
     "is an uninteresting number",
+    "is a boring number",
     "is an unremarkable number"
 ]
 
